@@ -1,3 +1,4 @@
+use chrono::NaiveTime;
 use dioxus::prelude::*;
 
 const STYLES: &str = r#"
@@ -70,7 +71,7 @@ const STYLES: &str = r#"
             transform: scale(1);
         }
         50% { 
-            transform: scale(1.3);
+            transform: scale(1.2);
         }
     }
 "#;
@@ -78,22 +79,25 @@ const STYLES: &str = r#"
 #[derive(Props, PartialEq, Clone)]
 pub struct BubbleProps {
     size: i32,
-    name: String,
-    time: String,
+    text: String,
+    time: NaiveTime,
+    color: String,
+    text_color: String,
 }
 
 #[component]
 pub fn Bubble(props: BubbleProps) -> Element {
     let mut is_checked = use_signal(|| false);
+    let formatted_time = props.time.format("%H:%M").to_string();
 
     rsx! {
         style { {STYLES} }
         div {
             class: "inline-block relative",
-            
+
             label {
                 class: "water-toggle",
-                
+
                 input {
                     r#type: "checkbox",
                     id: "toggle-wave",
@@ -103,21 +107,21 @@ pub fn Bubble(props: BubbleProps) -> Element {
                         is_checked.set(evt.checked());
                     }
                 }
-                
+
                 div {
                     class: if is_checked() { "container checked" } else { "container" },
-                    
+
                     button {
                         class: "water-button",
-                        style: "width: {props.size}px; height: {props.size}px;",
-                        "{props.name}"
+                        style: "width: {props.size}px; height: {props.size}px; background-color: {props.color}; color: {props.text_color};",
+                        "{props.text}"
                         br {}
-                        "{props.time}"
+                        "{formatted_time}"
                     }
-                    
+
                     svg {
                         style: "position: absolute; width: 0; height: 0;",
-                        
+
                         filter {
                             id: "water-rotate",
                             feTurbulence {
@@ -146,7 +150,7 @@ pub fn Bubble(props: BubbleProps) -> Element {
                                 "in": "SourceGraphic"
                             }
                         }
-                        
+
                         filter {
                             id: "still-water",
                             feTurbulence {
